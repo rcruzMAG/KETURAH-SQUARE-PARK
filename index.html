@@ -42,6 +42,7 @@
       <div class="hero-media" data-parallax="0.35">
         <img src="assets/img/hero-night.jpg" alt="Aerial dusk view of Keturah Square Park glowing against the Dubai skyline" fetchpriority="high">
       </div>
+      <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
       <div class="hero-veil" aria-hidden="true"></div>
       <div class="hero-fireflies" id="fireflies" aria-hidden="true"></div>
 
@@ -261,26 +262,27 @@
 
         <div class="split rev">
           <figure class="split-media tilt-frame reveal">
-            <div class="parallax-window">
+            <div class="parallax-window" id="masterplanWindow">
               <img src="assets/img/access-aerial.jpg" alt="Aerial plan view showing the three-finger park layout within the villa neighbourhood" data-parallax-inner="0.18" loading="lazy">
             </div>
-            <figcaption>The hand&#8209;derived plan — three green fingers around a civic heart</figcaption>
+            <figcaption>The hand&#8209;derived plan — three green fingers around a civic heart
+              <span class="gl-hint">Drag to orbit · hover the list to highlight</span></figcaption>
           </figure>
 
           <ol class="anatomy">
-            <li class="reveal">
+            <li class="reveal" data-zone="heart" tabindex="0">
               <h3>The Civic Heart — the Gathering Core</h3>
               <p>The central plaza anchors social life with dining, events, and community moments. It is the park’s heart and visual focus.</p>
             </li>
-            <li class="reveal">
+            <li class="reveal" data-zone="spine" tabindex="0">
               <h3>The Arrival Spine — the Wrist</h3>
               <p>A graceful arrival route that welcomes visitors, organises circulation and parking, and connects the city to the park’s central heart.</p>
             </li>
-            <li class="reveal">
+            <li class="reveal" data-zone="fingers" tabindex="0">
               <h3>The Three Green Fingers — Promenades, Lawns &amp; Hospitality Bands</h3>
               <p>Three landscaped promenades extend outward, offering generous lawns, F&amp;B terraces, and welcoming edges for strolls and relaxation.</p>
             </li>
-            <li class="reveal">
+            <li class="reveal" data-zone="rooms" tabindex="0">
               <h3>The Spaces Between Fingers — Shaded Outdoor Rooms</h3>
               <p>Shaded corridors and pockets become comfortable outdoor rooms that connect the fingers and encourage lingering.</p>
             </li>
@@ -562,5 +564,6 @@
   </template>
 
   <script src="js/main.js"></script>
+  <script type="module" src="js/gl/index.js"></script>
 </body>
 </html>

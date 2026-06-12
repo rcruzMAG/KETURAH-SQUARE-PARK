@@ -531,6 +531,36 @@ h1, h2, h3, .tagline { font-family: var(--serif); font-weight: 500; line-height:
 .tagline.reveal.in span:nth-child(2) { transition-delay: .22s; }
 .tagline.reveal.in span:nth-child(3) { transition-delay: .44s; }
 
+/* ============================ WebGL layer =============================== */
+
+.hero-canvas {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  opacity: 0; transition: opacity 1.2s var(--ease-out);
+}
+.hero-canvas.ready { opacity: 1; }
+.hero-veil { z-index: 2; }
+
+/* WebGL replaces the DOM fireflies and CSS palm silhouettes in the hero */
+body.gl-on .hero-fireflies,
+body.gl-on .hero-trees { display: none; }
+
+#masterplanWindow { position: relative; }
+#masterplanWindow.gl { height: 480px; cursor: grab; }
+#masterplanWindow.gl:active { cursor: grabbing; }
+.masterplan-canvas { width: 100%; height: 100%; display: block; touch-action: pan-y; }
+
+.gl-hint { display: none; }
+body.gl-on .gl-hint {
+  display: block; margin-top: .3rem;
+  font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold);
+}
+body.gl-on .anatomy li[data-zone] { cursor: pointer; transition: background .3s; }
+body.gl-on .anatomy li[data-zone]:hover,
+body.gl-on .anatomy li[data-zone]:focus-visible {
+  background: rgba(169, 142, 92, .08); outline: none;
+}
+
 /* ===================== reduced motion & print =========================== */
 
 @media (prefers-reduced-motion: reduce) {

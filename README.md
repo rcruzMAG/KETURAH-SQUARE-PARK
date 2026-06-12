@@ -21,7 +21,31 @@ reference site.
 | 08 Why This Site Wins | `#strategy` | SWOT synthesis & key success factors |
 | 09 Delivery | `#delivery` | Design principles & recommended next studies |
 
-## Enhancements
+## WebGL layer (three.js + custom GLSL)
+
+Powered by a vendored three.js (r184, `assets/vendor/`); boots from `js/gl/index.js`
+only when WebGL is available and `prefers-reduced-motion` is off — otherwise the page
+falls back to the DOM/CSS presentation below.
+
+- **Shader hero** (`js/gl/hero-gl.js`) — the night render is drawn on a fullscreen quad
+  with a custom fragment shader: cover-fit UV math, mouse parallax, ground heat-haze
+  distortion, warm grade, vignette and film grain. In front of it, a perspective scene
+  holds procedural 3D palm silhouettes and a GPU firefly particle system
+  (`THREE.Points`, additive glow sprites); the camera drifts against the photo's UV
+  shift so foreground and render separate in true depth.
+- **Procedural palms** (`js/gl/palm.js`) — trunk/fronds/coconuts built in code and
+  merged into one BufferGeometry with custom `aFlex`/`aTint` attributes; wind sway and
+  per-frond flutter run entirely in the vertex shader, with per-instance phase derived
+  from the instance matrix so groves never move in unison. The same material serves
+  regular and instanced meshes.
+- **Interactive 3D masterplan** (`js/gl/masterplan-gl.js`) — a stylized build of the
+  Three-Finger Salute plan: sand ground, three extruded finger lobes, terracotta civic
+  heart, arrival spine, tensile canopies, pergola outdoor rooms and an `InstancedMesh`
+  palm grove with soft shadows. Slow auto-orbit, drag to orbit, and hovering the
+  anatomy list highlights the matching plan element in 3D.
+- Each renderer pauses when offscreen or when the tab is hidden.
+
+## DOM/CSS enhancements (and WebGL fallback)
 
 - **Animated palm trees** — reusable SVG palm (`<template id="palmTemplate">`) cloned into
   the hero foreground, a grove divider, and the tagline section; trunk sway and per-frond
@@ -34,8 +58,8 @@ reference site.
 - **Animated counters** — climate stats count up when scrolled into view.
 - **Nav polish** — transparent-to-solid header, scroll progress bar, active-section
   highlighting, mobile slide-down menu.
-- **Accessibility** — `prefers-reduced-motion` disables parallax, sway, fireflies and
-  reveals; semantic landmarks and alt text throughout.
+- **Accessibility** — `prefers-reduced-motion` disables parallax, sway, fireflies, WebGL
+  and reveals; semantic landmarks and alt text throughout.
 
 ## Running
 
@@ -49,8 +73,13 @@ python3 -m http.server 8000
 ## Files
 
 ```
-index.html        page structure & content
-css/style.css     theme, layout, animations
-js/main.js        parallax, trees, reveals, counters, nav
-assets/img/       renders extracted from the concept deck
+index.html             page structure & content
+css/style.css          theme, layout, animations
+js/main.js             parallax, trees, reveals, counters, nav
+js/gl/index.js         WebGL boot + feature detection
+js/gl/palm.js          procedural palm geometry + wind shader material
+js/gl/hero-gl.js       shader hero: photo quad, palms, firefly particles
+js/gl/masterplan-gl.js interactive 3D Three-Finger Salute masterplan
+assets/vendor/         vendored three.js r184 module build
+assets/img/            renders extracted from the concept deck
 ```
