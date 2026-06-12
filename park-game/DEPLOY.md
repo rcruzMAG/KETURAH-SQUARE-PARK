@@ -7,8 +7,8 @@
 - Re-deploy: `cp -r design public/design && (cd public && zip -qr /tmp/keturah-square-park.zip .) && rm -rf public/design`, upload via media_upload → media_confirm(file) → deploy_game with game_id.
 
 ## Smoke (this container, headless SwiftShader CPU rasterizer)
-- Reference route end-to-end: zones 6/6, no 404s, no page errors.
-- Draw calls max **34** (budget 80 mobile / 150 desktop), ~300k triangles.
+- Reference route end-to-end (v2 layout): zones 6/6, no 404s, no page errors.
+- Draw calls max **36** (budget 80 mobile / 150 desktop), ~300k triangles.
 - FPS in container ≈1.6 (software rasterizer measures CPU, not the scene) — real-GPU
   confirmation tracked in design/external_review.md. Dev overlay: append `?dev=1`.
 - Reference-route executor: append `?route=ref&dev=1`.
