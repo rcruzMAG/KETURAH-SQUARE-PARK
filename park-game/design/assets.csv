@@ -1,0 +1,28 @@
+id,role,type,description,size/ratio,style line ref,source
+tex-grass,ground-lawn,image,tileable irrigated lawn grass texture for perimeter and finger lawns,512x512 tile,STYLE FORMULA (design/style.md),generate-procedural-canvas
+tex-terracotta,ground-restaurant-plaza,image,tileable terracotta/red ochre plaza paving with tonal patching,512x512 tile,STYLE FORMULA (design/style.md),generate-procedural-canvas
+tex-paving,ground-paths,image,tileable warm light granite/concrete promenade paving with joint lines,512x512 tile,STYLE FORMULA (design/style.md),generate-procedural-canvas
+tex-asphalt,ground-roads-parking,image,tileable asphalt for ring roads and parking loops,512x512 tile,STYLE FORMULA (design/style.md),generate-procedural-canvas
+tex-sand,ground-play-zone,image,tileable pale play sand for kid's play zone,512x512 tile,STYLE FORMULA (design/style.md),generate-procedural-canvas
+tex-agrigrid,ground-green-fingers,image,tileable pale-green lattice planting grid for kiosk finger lawns,512x512 tile,STYLE FORMULA (design/style.md),generate-procedural-canvas
+mdl-palm,vegetation-instanced,3d,date palm (trunk rings + frond fan) ~7-10 m; one InstancedMesh swarm,~450 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-ghaf,vegetation-instanced,3d,ghaf/broadleaf canopy tree for perimeter buffer,~90 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-shrub,vegetation-instanced,3d,low shrub/planting cluster,~160 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-kiosk,building-kiosk-finger,3d,white mono-pitch F&B kiosk with counter awning,~40 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-foodtruck,building-foodtruck-hub,3d,retro food truck with service hatch + menu board,14 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-drum,building-restaurant,3d,circular corten-banded restaurant drum pavilion with glazing + roof terrace,6 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-canopy,structure-restaurant-plaza,3d,large white tensile pyramid canopy on 4 masts,2-4 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-shadesail,structure-play-zone,3d,smaller shade sails over play areas,~4 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-play,prop-play-zone,3d,playground towers slides and climbing rings,1 merged cluster,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-car,prop-parking,3d,parked car (3 paint variants via instance color),~110 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-lightpole,prop-lighting,3d,park light pole; emissive head at dusk,~60 instances,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-arrival,building-arrival,3d,long white arrival pergola/facility bar (NW of site),1,STYLE FORMULA (design/style.md),generate-procedural-geometry
+mdl-skyline,context-surroundings,3d,low-detail villa/apartment blocks + highway ring outside fence,merged chunks,STYLE FORMULA (design/style.md),generate-procedural-geometry
+fx-sky,sky-lighting,shader,gradient sky dome with sun disc haze; day + dusk states; dusk fireflies,fullscreen,STYLE FORMULA (design/style.md),generate-procedural-shader
+ui-minimap,hud-minimap,image,stylised site-plan minimap with zone regions lighting up,256x256,STYLE FORMULA (design/style.md),generate-procedural-canvas
+audio-music,music-bed,audio,serene golden-hour instrumental (sonilo_music d=40 looped at −19 dBFS),40s loop,STYLE FORMULA mood (audio.md routing),generate
+audio-ambient,ambience-loop,audio,desert breeze + palm rustle + sparse songbirds + faint traffic (mirelo d=10 looped),10s loop,STYLE FORMULA mood (audio.md routing),generate
+audio-steps,sfx-footsteps,audio,single stone-paving footstep; per-surface volume/rate variation in code,1s one-shot,STYLE FORMULA mood (audio.md routing),generate
+audio-ui,sfx-discovery,audio,soft two-note marimba chime on zone discovery,2s one-shot,STYLE FORMULA mood (audio.md routing),generate
+img-thumbnail,store-thumbnail,image,golden-hour eye-level render of restaurant plaza canopies + palms,16:9 1280x720,STYLE FORMULA (design/style.md),generate
+img-favicon,store-favicon,image,three-finger salute park icon on terracotta,1:1 512x512,STYLE FORMULA (design/style.md),generate
