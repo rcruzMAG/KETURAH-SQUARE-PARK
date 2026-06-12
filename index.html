@@ -25,6 +25,7 @@
       <a href="#site">Site</a>
       <a href="#climate">Climate</a>
       <a href="#concept">Concept</a>
+      <a href="#masterplan">Masterplan</a>
       <a href="#people">People</a>
       <a href="#programme">Programme</a>
       <a href="#experience">Experience</a>
@@ -262,27 +263,26 @@
 
         <div class="split rev">
           <figure class="split-media tilt-frame reveal">
-            <div class="parallax-window" id="masterplanWindow">
+            <div class="parallax-window">
               <img src="assets/img/access-aerial.jpg" alt="Aerial plan view showing the three-finger park layout within the villa neighbourhood" data-parallax-inner="0.18" loading="lazy">
             </div>
-            <figcaption>The hand&#8209;derived plan — three green fingers around a civic heart
-              <span class="gl-hint">Drag to orbit · hover the list to highlight</span></figcaption>
+            <figcaption>The hand&#8209;derived plan — three green fingers around a civic heart</figcaption>
           </figure>
 
           <ol class="anatomy">
-            <li class="reveal" data-zone="heart" tabindex="0">
+            <li class="reveal">
               <h3>The Civic Heart — the Gathering Core</h3>
               <p>The central plaza anchors social life with dining, events, and community moments. It is the park’s heart and visual focus.</p>
             </li>
-            <li class="reveal" data-zone="spine" tabindex="0">
+            <li class="reveal">
               <h3>The Arrival Spine — the Wrist</h3>
               <p>A graceful arrival route that welcomes visitors, organises circulation and parking, and connects the city to the park’s central heart.</p>
             </li>
-            <li class="reveal" data-zone="fingers" tabindex="0">
+            <li class="reveal">
               <h3>The Three Green Fingers — Promenades, Lawns &amp; Hospitality Bands</h3>
               <p>Three landscaped promenades extend outward, offering generous lawns, F&amp;B terraces, and welcoming edges for strolls and relaxation.</p>
             </li>
-            <li class="reveal" data-zone="rooms" tabindex="0">
+            <li class="reveal">
               <h3>The Spaces Between Fingers — Shaded Outdoor Rooms</h3>
               <p>Shaded corridors and pockets become comfortable outdoor rooms that connect the fingers and encourage lingering.</p>
             </li>
@@ -297,11 +297,73 @@
       </div>
     </section>
 
-    <!-- ====================== 05 PEOPLE ====================== -->
-    <section class="section" id="people">
+    <!-- ====================== 05 MASTERPLAN ====================== -->
+    <section class="section section-alt" id="masterplan">
       <div class="container">
         <div class="section-head reveal">
           <span class="sec-num">05</span>
+          <h2>The Masterplan</h2>
+          <p class="lede">The hand&#8209;derived plan on the ground — food hubs along the arrival loop, kiosk
+            promenades on the green fingers, play at the heart, and destination dining on the plaza.
+            <strong>Select a zone tag to explore it.</strong></p>
+        </div>
+      </div>
+
+      <div class="plan-stage container">
+        <div class="plan-frame reveal" id="planStage">
+          <img src="assets/img/site-plan.jpg" alt="Aerial masterplan of Keturah Square Park showing the food hubs, kiosk promenades, kid's play zone, restaurant plaza and parking">
+          <button class="plan-tag" data-zone="hub-north" style="--x:38.5%; --y:40%; --d:.05s" aria-haspopup="dialog">
+            <span class="tag-dot" aria-hidden="true"></span>
+            <span class="tag-label"><small>Food Truck</small><span>Food<br>Hub</span></span>
+          </button>
+          <button class="plan-tag" data-zone="kiosk" style="--x:57%; --y:42%; --d:.2s" aria-haspopup="dialog">
+            <span class="tag-dot" aria-hidden="true"></span>
+            <span class="tag-label"><small>Kiosk</small><span>Food<br>Hub</span></span>
+          </button>
+          <button class="plan-tag" data-zone="play" style="--x:46.5%; --y:57%; --d:.35s" aria-haspopup="dialog">
+            <span class="tag-dot" aria-hidden="true"></span>
+            <span class="tag-label"><span>Kid’s<br>Play<br>Zone</span></span>
+          </button>
+          <button class="plan-tag" data-zone="restaurant" style="--x:56.5%; --y:72%; --d:.5s" aria-haspopup="dialog">
+            <span class="tag-dot" aria-hidden="true"></span>
+            <span class="tag-label"><span>Restaurant</span></span>
+          </button>
+          <button class="plan-tag" data-zone="hub-south" style="--x:38.5%; --y:76%; --d:.65s" aria-haspopup="dialog">
+            <span class="tag-dot" aria-hidden="true"></span>
+            <span class="tag-label"><small>Food Truck</small><span>Food<br>Hub</span></span>
+          </button>
+          <button class="plan-tag" data-zone="parking" style="--x:63.5%; --y:85%; --d:.8s" aria-haspopup="dialog">
+            <span class="tag-dot" aria-hidden="true"></span>
+            <span class="tag-label"><span>Parking</span></span>
+          </button>
+        </div>
+        <p class="plan-hint reveal">Tap a tag to open the zone — renders, programme and key design notes.</p>
+      </div>
+
+      <!-- zone pop-up -->
+      <div class="zone-modal" id="zoneModal" role="dialog" aria-modal="true" aria-labelledby="zoneTitle" hidden>
+        <div class="zone-backdrop" data-close></div>
+        <article class="zone-card">
+          <button class="zone-close" data-close aria-label="Close zone details">&times;</button>
+          <div class="zone-media">
+            <img id="zoneImg" src="" alt="">
+            <div class="zone-thumbs" id="zoneThumbs"></div>
+          </div>
+          <div class="zone-body">
+            <span class="exp-tag" id="zoneKicker"></span>
+            <h3 id="zoneTitle"></h3>
+            <p id="zoneDesc"></p>
+            <ul id="zoneFeatures"></ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ====================== 06 PEOPLE ====================== -->
+    <section class="section" id="people">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="sec-num">06</span>
           <h2>A Park for Every Rhythm</h2>
           <p class="lede">A successful destination park must serve multiple user groups across very different times
             of day, seasons, and cultural rhythms — designed for multiple personas, evening comfort, and
@@ -333,7 +395,7 @@
     <section class="section section-alt" id="programme">
       <div class="container">
         <div class="section-head reveal">
-          <span class="sec-num">06</span>
+          <span class="sec-num">07</span>
           <h2>Programme Brief</h2>
           <p class="lede">The programme combines destination dining, family leisure, and landscape infrastructure
             within a planning&#8209;led park typology. Landscape is the comfort engine — high shade, water, and
@@ -368,7 +430,7 @@
     <section class="experience" id="experience">
       <div class="container exp-head">
         <div class="section-head reveal">
-          <span class="sec-num">07</span>
+          <span class="sec-num">08</span>
           <h2>Experience the Park</h2>
           <p class="lede">Four signature zones — each tuned to its own rhythm of arrival, play, dining, and strolling.</p>
         </div>
@@ -423,7 +485,7 @@
     <section class="section" id="strategy">
       <div class="container">
         <div class="section-head reveal">
-          <span class="sec-num">08</span>
+          <span class="sec-num">09</span>
           <h2>Why This Site Wins</h2>
           <p class="lede">The project combines a rare strategic location with clear environmental and operational
             constraints that must be actively designed around.</p>
@@ -465,7 +527,7 @@
     <section class="section section-alt" id="delivery">
       <div class="container">
         <div class="section-head reveal">
-          <span class="sec-num">09</span>
+          <span class="sec-num">10</span>
           <h2>Design Principles &amp; Next Studies</h2>
           <p class="lede">Comfort&#8209;led design principles must now be validated through targeted technical
             studies before concept freeze — to confirm feasibility, de&#8209;risk approvals, and protect the
@@ -535,7 +597,8 @@
       </div>
       <nav aria-label="Footer">
         <a href="#vision">Vision</a><a href="#site">Site</a><a href="#climate">Climate</a>
-        <a href="#concept">Concept</a><a href="#programme">Programme</a><a href="#delivery">Delivery</a>
+        <a href="#concept">Concept</a><a href="#masterplan">Masterplan</a>
+        <a href="#programme">Programme</a><a href="#delivery">Delivery</a>
       </nav>
       <div class="foot-meta">
         <p>&copy; 2026 Keturah Square Park. All rights reserved.</p>

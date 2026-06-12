@@ -15,11 +15,12 @@ reference site.
 | 02 Site & Regional Context | `#site` | Site identification, edge response strategy |
 | 03 Climate & Outdoor Comfort | `#climate` | Climatic analysis — headline figures & key insights |
 | 04 The Three-Finger Salute | `#concept` | Concept interpretation — plan anatomy |
-| 05 People | `#people` | User analysis — personas & time-of-day journey |
-| 06 Programme | `#programme` | Programme brief & indicative planning metrics |
-| 07 Experience | `#experience` | Zone renders — Food Hub, Kids' Play, Restaurant Zone |
-| 08 Why This Site Wins | `#strategy` | SWOT synthesis & key success factors |
-| 09 Delivery | `#delivery` | Design principles & recommended next studies |
+| 05 The Masterplan | `#masterplan` | Site plan — interactive zone tags & pop-ups |
+| 06 People | `#people` | User analysis — personas & time-of-day journey |
+| 07 Programme | `#programme` | Programme brief & indicative planning metrics |
+| 08 Experience | `#experience` | Zone renders — Food Hub, Kids' Play, Restaurant Zone |
+| 09 Why This Site Wins | `#strategy` | SWOT synthesis & key success factors |
+| 10 Delivery | `#delivery` | Design principles & recommended next studies |
 
 ## WebGL layer (three.js + custom GLSL)
 
@@ -38,12 +39,17 @@ falls back to the DOM/CSS presentation below.
   per-frond flutter run entirely in the vertex shader, with per-instance phase derived
   from the instance matrix so groves never move in unison. The same material serves
   regular and instanced meshes.
-- **Interactive 3D masterplan** (`js/gl/masterplan-gl.js`) — a stylized build of the
-  Three-Finger Salute plan: sand ground, three extruded finger lobes, terracotta civic
-  heart, arrival spine, tensile canopies, pergola outdoor rooms and an `InstancedMesh`
-  palm grove with soft shadows. Slow auto-orbit, drag to orbit, and hovering the
-  anatomy list highlights the matching plan element in 3D.
-- Each renderer pauses when offscreen or when the tab is hidden.
+- The renderer pauses when offscreen or when the tab is hidden.
+
+## Interactive masterplan
+
+The Masterplan section (`#masterplan`) overlays clickable zone tags on the site-plan
+render. When the plan scrolls into view the tags pop out of their map locations with a
+staggered spring animation and pulsing anchor dots. Clicking a tag opens a dialog with
+the zone's kicker, description, key design notes, and a render gallery with thumbnail
+switching (Food Hub food-truck courts north/south, kiosk promenade, Kid's Play Zone,
+Restaurant Zone, and Parking). Closes via backdrop, the × button, or Escape; focus
+returns to the originating tag.
 
 ## DOM/CSS enhancements (and WebGL fallback)
 
@@ -75,11 +81,10 @@ python3 -m http.server 8000
 ```
 index.html             page structure & content
 css/style.css          theme, layout, animations
-js/main.js             parallax, trees, reveals, counters, nav
+js/main.js             parallax, trees, reveals, counters, nav, masterplan tags + zone modal
 js/gl/index.js         WebGL boot + feature detection
 js/gl/palm.js          procedural palm geometry + wind shader material
 js/gl/hero-gl.js       shader hero: photo quad, palms, firefly particles
-js/gl/masterplan-gl.js interactive 3D Three-Finger Salute masterplan
 assets/vendor/         vendored three.js r184 module build
 assets/img/            renders extracted from the concept deck
 ```

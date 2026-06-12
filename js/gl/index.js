@@ -3,7 +3,6 @@
    fallbacks (static hero image, CSS palm sway, DOM fireflies, plan photo). */
 
 import { initHero } from "./hero-gl.js";
-import { initMasterplan } from "./masterplan-gl.js";
 
 function webglAvailable() {
   try {
@@ -23,7 +22,6 @@ if (!reducedMotion && webglAvailable()) {
   document.body.classList.add("gl-on");
   try {
     initHero();
-    initMasterplan();
   } catch (err) {
     // fall back to the DOM presentation rather than a broken page
     document.body.classList.remove("gl-on");
