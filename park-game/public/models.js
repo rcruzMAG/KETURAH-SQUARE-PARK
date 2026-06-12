@@ -185,22 +185,27 @@ export function buildBlobTree() {
 
 const WHITE = C(0xf2efe6), STEEL = C(0xd5d3cc), DARKGLASS = C(0x22302f), WOOD = C(0x8a6a44);
 
-/* Artisan kiosk 6×4 m, opening faces +Z. */
+/* Artisan kiosk 6.4×4.8 m — timber frame, white gable canopy, open sides (per the
+   green-fingers zone render). Counter faces +Z. */
+const TIMBER = C(0x9a7a4f);
 export function buildKiosk() {
   const p = [];
   const add = (g, col, x, y, z) => { g.translate(x, y, z); paint(g, col); p.push(g); };
-  add(new THREE.BoxGeometry(6, 0.25, 4.4), C(0xddd8cc), 0, 0.12, 0);             // plinth
-  add(new THREE.BoxGeometry(6, 3.0, 0.2), WHITE, 0, 1.62, -1.9);                  // back wall
-  add(new THREE.BoxGeometry(0.2, 3.0, 3.6), WHITE, -2.9, 1.62, 0);                // side
-  add(new THREE.BoxGeometry(0.2, 3.0, 3.6), WHITE, 2.9, 1.62, 0);                 // side
-  add(new THREE.BoxGeometry(5.6, 2.6, 0.15), C(0x2a2622), 0, 1.45, -1.0);         // interior panel
-  add(new THREE.BoxGeometry(5.8, 0.12, 0.9), WOOD, 0, 1.06, 1.6);                 // counter
-  const roof = new THREE.BoxGeometry(6.7, 0.18, 5.4);
-  roof.rotateX(-0.085);
-  add(roof, WHITE, 0, 3.32, 0.25);                                                // mono-pitch roof
-  add(new THREE.BoxGeometry(0.14, 3.2, 0.14), STEEL, -2.6, 1.7, 1.9);             // posts
-  add(new THREE.BoxGeometry(0.14, 3.2, 0.14), STEEL, 2.6, 1.7, 1.9);
-  add(new THREE.BoxGeometry(2.6, 0.5, 0.08), C(0x3a3a36), 0, 2.65, 1.86);         // signage band
+  add(new THREE.BoxGeometry(6.4, 0.28, 4.8), C(0xded8ca), 0, 0.14, 0);             // plinth
+  for (const [px, pz] of [[-2.8, -2.0], [2.8, -2.0], [-2.8, 2.0], [2.8, 2.0]])
+    add(new THREE.BoxGeometry(0.18, 3.3, 0.18), TIMBER, px, 1.9, pz);              // corner posts
+  add(new THREE.BoxGeometry(6.0, 0.14, 0.14), TIMBER, 0, 3.5, -2.0);               // eave beams
+  add(new THREE.BoxGeometry(6.0, 0.14, 0.14), TIMBER, 0, 3.5, 2.0);
+  add(new THREE.BoxGeometry(0.14, 0.14, 4.2), TIMBER, -2.8, 3.5, 0);
+  add(new THREE.BoxGeometry(0.14, 0.14, 4.2), TIMBER, 2.8, 3.5, 0);
+  const roofS = new THREE.BoxGeometry(7.2, 0.12, 2.95); roofS.rotateX(0.42);
+  add(roofS, C(0xf6f3ea), 0, 4.12, 1.3);                                           // gable canopy
+  const roofN = new THREE.BoxGeometry(7.2, 0.12, 2.95); roofN.rotateX(-0.42);
+  add(roofN, C(0xf6f3ea), 0, 4.12, -1.3);
+  add(new THREE.BoxGeometry(7.0, 0.14, 0.32), C(0xefece0), 0, 4.7, 0);             // ridge
+  add(new THREE.BoxGeometry(5.6, 1.15, 1.5), C(0x322c25), 0, 0.95, -1.0);          // back-bar block
+  add(new THREE.BoxGeometry(5.4, 1.3, 0.1), C(0x40382e), 0, 2.45, -1.92);          // menu band
+  add(new THREE.BoxGeometry(5.8, 0.12, 0.85), WOOD, 0, 1.1, 1.62);                 // front counter
   return merge(p);
 }
 
@@ -243,30 +248,41 @@ export function buildCar() {
   return merge(p);
 }
 
-/* Restaurant drum parts — built per radius (not instanced; 6 unique radii merged
-   into ONE static mesh per material kind to stay within draw-call budget). */
+/* Restaurant drum parts — fully glazed pavilion with slender mullions, corten
+   fascia band and white deck ring (per the restaurant-zone render). Per-radius
+   geometry merged into ONE static mesh per material kind. */
 export function drumCorten(r) {
-  const g = new THREE.CylinderGeometry(r, r, 6.4, 28, 1, true);
-  g.translate(0, 3.2, 0);
-  return g; // textured (corten) — no vertex color
+  const g = new THREE.CylinderGeometry(r + 0.14, r + 0.14, 2.0, 28, 1, true);
+  g.translate(0, 5.9, 0);
+  return g; // corten fascia band — textured, no vertex color
 }
 export function drumTrim(r) {
   const p = [];
-  const lip = new THREE.CylinderGeometry(r + 0.18, r + 0.18, 0.5, 28, 1, true).toNonIndexed();
-  lip.translate(0, 6.55, 0);
+  const plinth = new THREE.CylinderGeometry(r + 0.3, r + 0.4, 0.28, 28, 1, true).toNonIndexed();
+  plinth.translate(0, 0.14, 0);
+  paint(plinth, C(0xd8d2c4)); p.push(plinth);
+  for (let i = 0; i < 18; i++) { // glazing mullions
+    const a = (i / 18) * Math.PI * 2;
+    const m = new THREE.BoxGeometry(0.1, 4.7, 0.1).toNonIndexed();
+    m.rotateY(-a);
+    m.translate(Math.cos(a) * r, 2.6, Math.sin(a) * r);
+    paint(m, C(0x4a4a46)); p.push(m);
+  }
+  const core = new THREE.CylinderGeometry(r * 0.55, r * 0.55, 3.6, 20).toNonIndexed();
+  core.translate(0, 1.8, 0);
+  paint(core, C(0xf7e3bb)); p.push(core); // warm lit interior volume
+  const lip = new THREE.CylinderGeometry(r + 0.26, r + 0.26, 0.35, 28, 1, true).toNonIndexed();
+  lip.translate(0, 7.05, 0);
   paint(lip, WHITE); p.push(lip);
-  const deck = new THREE.CylinderGeometry(r - 0.1, r - 0.1, 0.12, 28).toNonIndexed();
-  deck.translate(0, 6.4, 0);
+  const deck = new THREE.CylinderGeometry(r + 0.05, r + 0.05, 0.16, 28).toNonIndexed();
+  deck.translate(0, 7.0, 0);
   paint(deck, C(0xcdc4b2)); p.push(deck);
-  const door = new THREE.BoxGeometry(2.6, 2.6, 0.3).toNonIndexed();
-  door.translate(0, 1.3, r - 0.05);
-  paint(door, C(0x2e2a24)); p.push(door);
   return merge(p);
 }
 export function drumGlass(r) {
-  const g = new THREE.CylinderGeometry(r + 0.05, r + 0.05, 1.7, 28, 1, true);
-  g.translate(0, 2.6, 0);
-  return g; // glass band — emissive interior glow at dusk
+  const g = new THREE.CylinderGeometry(r, r, 4.6, 28, 1, true);
+  g.translate(0, 2.58, 0);
+  return g; // full-height glazing — warm interior emissive
 }
 
 /* Tensile canopy sail — unit span 1, apex 1; instanced with per-axis scale. */
@@ -309,67 +325,70 @@ export function buildFrame() {
   return merge(p);
 }
 
-/* Woven play drum (lattice cylinder), unit radius 1, h 3.4. */
-export function buildPlayDrum() {
+/* Woven lattice play sphere (per the play-zone render), unit radius 1, base at
+   origin (sphere centre y=1); instanced with per-instance scale. */
+export function buildLatticeSphere() {
   const p = [];
-  const SLATS = 18;
+  const rattan = (i) => C().setHSL(0.085, 0.42, 0.46 + (i % 3) * 0.06);
+  for (let i = 0; i < 5; i++) { // horizontal hoops
+    const y = -0.72 + i * 0.36;
+    const r = Math.sqrt(Math.max(0.05, 1 - y * y));
+    const hoop = new THREE.TorusGeometry(r, 0.045, 6, 26).toNonIndexed();
+    hoop.rotateX(Math.PI / 2);
+    hoop.translate(0, 1 + y, 0);
+    paint(hoop, rattan(i)); p.push(hoop);
+  }
+  for (let i = 0; i < 7; i++) { // vertical hoops through the poles
+    const hoop = new THREE.TorusGeometry(0.98, 0.04, 6, 26).toNonIndexed();
+    hoop.rotateY((i / 7) * Math.PI);
+    hoop.translate(0, 1, 0);
+    paint(hoop, rattan(i + 1)); p.push(hoop);
+  }
+  const foot = new THREE.CylinderGeometry(0.55, 0.65, 0.18, 14).toNonIndexed();
+  foot.translate(0, 0.05, 0);
+  paint(foot, C(0xcabd9f)); p.push(foot);
+  return merge(p);
+}
+
+/* Tall woven lattice viewing tower (one-off; per the play-zone render). */
+export function buildLatticeTower(r, h) {
+  const p = [];
+  const SLATS = 26;
   for (let i = 0; i < SLATS; i++) {
     const a = (i / SLATS) * Math.PI * 2;
-    const s = new THREE.BoxGeometry(0.10, 3.4, 0.04).toNonIndexed();
-    s.rotateZ(Math.sin(i * 1.7) * 0.06);
+    const s = new THREE.BoxGeometry(0.14, h, 0.06).toNonIndexed();
+    s.rotateZ(Math.sin(i * 1.7) * 0.04);
     s.rotateY(-a);
-    s.translate(Math.cos(a), 1.7, Math.sin(a));
-    paint(s, C().setHSL(0.085, 0.45, 0.5 + (i % 3) * 0.06));
+    s.translate(Math.cos(a) * r, h / 2, Math.sin(a) * r);
+    paint(s, C().setHSL(0.085, 0.45, 0.48 + (i % 3) * 0.06));
     p.push(s);
   }
-  for (const hy of [0.5, 1.7, 2.9]) {
-    const hoop = new THREE.TorusGeometry(1.01, 0.045, 6, 28).toNonIndexed();
+  for (let k = 0; k <= 4; k++) {
+    const hoop = new THREE.TorusGeometry(r + 0.05, 0.07, 6, 30).toNonIndexed();
     hoop.rotateX(Math.PI / 2);
-    hoop.translate(0, hy, 0);
-    paint(hoop, C(0x9a7544));
-    p.push(hoop);
+    hoop.translate(0, 0.5 + (k * (h - 1)) / 4, 0);
+    paint(hoop, C(0x9a7544)); p.push(hoop);
   }
+  const deck = new THREE.CylinderGeometry(r - 0.2, r - 0.2, 0.16, 20).toNonIndexed();
+  deck.translate(0, h * 0.72, 0);
+  paint(deck, WOOD); p.push(deck);
+  const crown = new THREE.TorusGeometry(r + 0.3, 0.09, 6, 30).toNonIndexed();
+  crown.rotateX(Math.PI / 2);
+  crown.translate(0, h + 0.1, 0);
+  paint(crown, C(0xa8854e)); p.push(crown);
   return merge(p);
 }
 
-/* Play tower + slide cluster (one-off). */
-export function buildPlayTower() {
+/* Slide chute (one-off, leans out of the big lattice sphere). */
+export function buildSlide() {
   const p = [];
   const add = (g, col, x, y, z) => { g.translate(x, y, z); paint(g, col); p.push(g); };
-  for (const [tx, tz] of [[0, 0], [4.5, 2.2]]) {
-    add(new THREE.BoxGeometry(2.2, 0.18, 2.2), WOOD, tx, 1.8, tz);                  // deck
-    for (const [lx, lz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
-      add(new THREE.CylinderGeometry(0.09, 0.09, 1.9, 6), STEEL, tx + lx, 0.95, tz + lz);
-    const roof = new THREE.ConeGeometry(1.8, 1.2, 4);
-    roof.rotateY(Math.PI / 4);
-    add(roof, C(0xd96f4a), tx, 3.1, tz);                                            // terracotta hat
+  const chute = new THREE.BoxGeometry(0.95, 0.1, 5.2); chute.rotateX(0.5);
+  add(chute, C(0xc8cdd0), 0, 1.5, -2.4);
+  for (const o of [-0.5, 0.5]) {
+    const rail = new THREE.BoxGeometry(0.08, 0.3, 5.2); rail.rotateX(0.5);
+    add(rail, C(0x9aa0a4), o, 1.66, -2.4);
   }
-  const bridge = new THREE.BoxGeometry(2.8, 0.14, 1.1);
-  bridge.rotateY(Math.atan2(2.2, 4.5));
-  add(bridge, WOOD, 2.25, 1.82, 1.1);
-  const slide = new THREE.BoxGeometry(0.9, 0.1, 3.6);
-  slide.rotateX(0.62);
-  add(slide, C(0xe0b33c), 0, 1.05, -2.4);                                           // slide chute
-  for (const o of [-0.45, 0.45]) {
-    const rail = new THREE.BoxGeometry(0.08, 0.26, 3.6);
-    rail.rotateX(0.62);
-    add(rail, C(0xc99a26), o, 1.2, -2.4);
-  }
-  return merge(p);
-}
-
-/* Fountain basin (water disc is a separate animated mesh in world.js). */
-export function buildFountainBasin(r) {
-  const p = [];
-  const wall = new THREE.CylinderGeometry(r, r + 0.15, 0.55, 32, 1, true).toNonIndexed();
-  wall.translate(0, 0.27, 0);
-  paint(wall, C(0xd8d2c4)); p.push(wall);
-  const lip = new THREE.TorusGeometry(r + 0.05, 0.14, 8, 32).toNonIndexed();
-  lip.rotateX(Math.PI / 2); lip.translate(0, 0.55, 0);
-  paint(lip, C(0xe5e0d2)); p.push(lip);
-  const bowl = new THREE.CylinderGeometry(0.7, 0.5, 1.1, 16).toNonIndexed();
-  bowl.translate(0, 0.55, 0);
-  paint(bowl, C(0xcfc8b8)); p.push(bowl);
   return merge(p);
 }
 

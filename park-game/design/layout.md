@@ -1,4 +1,28 @@
-# design/layout.md — site geometry contract (derived from the user's aerial site plan + markup)
+# design/layout.md — site geometry contract v2 (rebuilt 1:1 against the clean site plan, 2026-06-12)
+
+Coordinate system: meters. +X = east, +Z = south, origin at the Kid's Play heart.
+Mapping from the clean plan image (528×573 px): 1 px ≈ 1 m; world = px − (212, 285).
+
+| Element | World | Notes |
+|---|---|---|
+| Site fence | (−190,−267)–(293,267), corner R 30 | perimeter road outside; inner perimeter path ring |
+| Arrival bar | c (−82,−241), 110×22 | long white shade pavilion, N edge |
+| Food-truck loop N | c (−96,−72), len 245, w 126, ang −88°; island 200×42 | near-vertical stadium loop, angled bays both edges, 8 trucks + planting on island |
+| Food-truck loop S | c (−116,165), len 190, w 104, ang 81°; island 145×38 | 6 trucks |
+| Central plaza | polygon around heart | diamond-paved palm of the salute; sand blob on top |
+| Kid's play sand | lobe (−10,−15) r38 ⊕ (15,30) r30 | 3 lattice spheres + slide, lattice tower (−27,−45), 2 sails, sand mounds |
+| Green finger A | c (93,−110), len 270, w 78, ang −50° | springs from the palm; 2×8 timber-gable kiosks, ring path |
+| Green finger B | c (168,−40), len 285, w 78, ang −44° | 2×8 kiosks, ring path |
+| Restaurant plaza | lobe (118,140) r105 ⊕ (33,45) r45 | terracotta; 4 glazed drums (156,67)r11 (40,107)r10 (96,183)r11 (186,183)r11; 2 diamond canopies (100,113)s42 (136,177)s38 |
+| SE parking | (203,160)–(293,240) | 3 bay rows, entry from E road |
+| Paths | spine arrival→heart; N gate path west of finger A; finger spines+rings; loop links; plaza link; SE link; perimeter ring; play ring c(2,5) r48 |
+| Zones | arrival (−82,−235) · truckN (−96,−72) · truckS (−116,165) · play (0,0) · kiosk (120,−75) · restaurant (118,135) |
+| Spawn | (−82,−232) facing the spine |
+
+Asset language locked from the zone renders: timber-frame kiosks with white gable canopies;
+food-truck islands lush with planting and umbrellas; woven lattice spheres/tower + shade
+sails + sand mounds in the play heart; restaurant drums fully glazed with warm interiors,
+corten fascia and white deck ring; plaza canopies set as 45° diamonds.
 
 Coordinate system: meters. +X = east, +Z = south, origin at the Kid's Play Zone heart.
 Mapping from the aerial image (1331×706 px): the park parcel spans px ≈ (430,115)–(940,665),

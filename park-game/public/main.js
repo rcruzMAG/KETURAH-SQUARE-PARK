@@ -302,6 +302,8 @@ function drawMapBase() {
   ctx.fillStyle = "#86a050";
   poly(ctx, L.ISLAND_N_POLY); ctx.fill();
   poly(ctx, L.ISLAND_S_POLY); ctx.fill();
+  ctx.fillStyle = "#d8d2c0";
+  poly(ctx, L.CENTRAL); ctx.fill();
   ctx.fillStyle = "#b65f3e";
   poly(ctx, L.PLAZA); ctx.fill();
   ctx.fillStyle = "#dec9a0";

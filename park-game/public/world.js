@@ -60,21 +60,7 @@ function surface(polys, mat, y) {
   return mesh;
 }
 
-function roundedRectPolygon(x0, z0, x1, z1, r, arcSteps = 7) {
-  const pts = [];
-  const corners = [
-    [x1 - r, z0 + r, -Math.PI / 2, 0],       // NE
-    [x1 - r, z1 - r, 0, Math.PI / 2],         // SE
-    [x0 + r, z1 - r, Math.PI / 2, Math.PI],   // SW
-    [x0 + r, z0 + r, Math.PI, Math.PI * 1.5], // NW
-  ];
-  for (const [cx, cz, a0, a1] of corners)
-    for (let i = 0; i <= arcSteps; i++) {
-      const t = a0 + ((a1 - a0) * i) / arcSteps;
-      pts.push([cx + Math.cos(t) * r, cz + Math.sin(t) * r]);
-    }
-  return pts;
-}
+const roundedRectPolygon = L.roundedRectPolygon;
 
 /* Ribbon strip along a polyline with width w; planar world UVs. */
 function ribbon(line, w) {
@@ -141,7 +127,7 @@ function placed(geo, x, y, z, ry = 0, s = 1) {
 /* ---------- planting blockers ---------- */
 
 const blockPolys = [
-  L.PLAZA, L.SAND, L.FINGER_A_POLY, L.FINGER_B_POLY,
+  L.PLAZA, L.CENTRAL, L.SAND, L.FINGER_A_POLY, L.FINGER_B_POLY,
   L.LOOP_N_POLY, L.LOOP_S_POLY, L.PARKING_SE,
 ];
 
@@ -151,11 +137,15 @@ function onSurface(x, z, pad = 2) {
     const hw = path.w / 2 + pad;
     if (L.distToPolylineSq(x, z, path.line) < hw * hw) return true;
   }
+  for (const ring of L.RING_PATHS) {
+    const hw = ring.w / 2 + pad;
+    if (L.distToPolylineSq(x, z, [...ring.poly, ring.poly[0]]) < hw * hw) return true;
+  }
   const dx = x - L.PLAY_RING.cx, dz = z - L.PLAY_RING.cz;
   const d = Math.hypot(dx, dz);
   if (Math.abs(d - L.PLAY_RING.r) < L.PLAY_RING.w / 2 + pad) return true;
   if (Math.abs(x - L.ARRIVAL.cx) < L.ARRIVAL.w / 2 + 4 && Math.abs(z - L.ARRIVAL.cz) < L.ARRIVAL.d / 2 + 4) return true;
-  if (Math.hypot(x - L.FOUNTAIN.x, z - L.FOUNTAIN.z) < L.FOUNTAIN.r + 3) return true;
+  if (Math.hypot(x - L.TOWER.x, z - L.TOWER.z) < L.TOWER.r + 3) return true;
   return false;
 }
 
@@ -181,10 +171,9 @@ export function buildWorld(scene, isMobile) {
     wind: windify(std({ vertexColors: true, roughness: 0.92, side: THREE.DoubleSide })),
     sail: std({ map: T.fabric, color: 0xf6f3ea, roughness: 0.5, side: THREE.DoubleSide, emissive: 0xffc987, emissiveIntensity: 0 }),
     corten: std({ map: tex(T.corten, 1), roughness: 0.85 }),
-    glass: std({ color: 0x1f2e2c, roughness: 0.18, metalness: 0.35, transparent: true, opacity: 0.92, emissive: 0xffc170, emissiveIntensity: 0 }),
+    glass: std({ color: 0x8fa39d, roughness: 0.08, metalness: 0.25, transparent: true, opacity: 0.42, emissive: 0xffc98a, emissiveIntensity: 0.18, side: THREE.DoubleSide }),
     lampHead: std({ color: 0x2e2e2c, emissive: 0xffd9a0, emissiveIntensity: 0 }),
     mark: std({ color: 0xe8e6dd, roughness: 0.9 }),
-    water: std({ color: 0x69a7b8, roughness: 0.12, metalness: 0.08, transparent: true, opacity: 0.92 }),
     skyline: new THREE.MeshBasicMaterial({ color: 0xb7becb }),
   };
   mats.corten.map.repeat.set(5, 1);
@@ -226,15 +215,17 @@ export function buildWorld(scene, isMobile) {
     mats.asphalt, 0.045));
 
   scene.add(surface([{ poly: L.PLAZA }], mats.terracotta, 0.07));
-  scene.add(surface([{ poly: L.SAND }], mats.sand, 0.07));
+  scene.add(surface([{ poly: L.CENTRAL }], mats.paving, 0.06));
+  scene.add(surface([{ poly: L.SAND }], mats.sand, 0.1));
   scene.add(surface([{ poly: L.FINGER_A_POLY }, { poly: L.FINGER_B_POLY }], mats.agrigrid, 0.07));
 
-  /* paths */
+  /* paths (open polylines + closed rings) */
   {
     const geos = L.PATHS.map((p) => ribbon(p.line, p.w));
+    for (const ring of L.RING_PATHS) geos.push(ribbon([...ring.poly, ring.poly[0], ring.poly[1]], ring.w));
     geos.push(annulus(L.PLAY_RING.cx, L.PLAY_RING.cz, L.PLAY_RING.r, L.PLAY_RING.w));
     const paths = new THREE.Mesh(M.merge(geos), mats.paving);
-    paths.position.y = 0.12;
+    paths.position.y = 0.13;
     paths.receiveShadow = true;
     scene.add(paths);
   }
@@ -274,7 +265,7 @@ export function buildWorld(scene, isMobile) {
   }
   /* plaza palm grid (in grates) */
   for (let i = 0; i < 480 && palms.length < 96; i++) {
-    const x = 20 + rnd() * 230, z = 20 + rnd() * 200;
+    const x = -10 + rnd() * 235, z = rnd() * 245;
     if (!L.pointInPolygon(x, z, L.PLAZA)) continue;
     let clear = true;
     for (const [dx2, dz2, dr] of L.DRUMS) if (Math.hypot(x - dx2, z - dz2) < dr + 4) clear = false;
@@ -310,12 +301,12 @@ export function buildWorld(scene, isMobile) {
   /* ghaf grove east + north berm + between fingers */
   for (let i = 0; i < 2400 && ghafs.length < 80; i++) {
     const x = x0 + 8 + rnd() * (x1 - x0 - 16), z = z0 + 8 + rnd() * (z1 - z0 - 16);
-    const eastBias = x > 230 || z < -230 || (x > 60 && x < 220 && z > -140 && z < -40);
+    const eastBias = x > 225 || z < -215 || (x > 30 && x < 210 && z > -150 && z < -20);
     if (!eastBias || onSurface(x, z, 2.5) || !minDistOk(x, z, 10)) continue;
     plant(ghafs, x, z, 0.8 + rnd() * 0.45, 0.45);
   }
   /* shrubs along the spine + rings */
-  for (const path of [L.PATHS[0], L.PATHS[3], L.PATHS[4]]) {
+  for (const path of [L.PATHS[0], L.PATHS[2], L.PATHS[3]]) {
     for (let i = 0; i < path.line.length - 1; i++) {
       const [ax, az] = path.line[i], [bx, bz] = path.line[i + 1];
       const len = Math.hypot(bx - ax, bz - az), n = Math.floor(len / 11);
@@ -338,44 +329,53 @@ export function buildWorld(scene, isMobile) {
     blobs.push({ x, z, ry: rnd() * 6.28, s: 0.7 + rnd() * 0.8 });
   }
 
-  scene.add(inst(M.buildPalm(7), mats.wind, palms, { shadow: !isMobile }));
-  scene.add(inst(M.buildGhaf(17), mats.wind, ghafs, { shadow: !isMobile }));
-  scene.add(inst(M.buildShrub(27), mats.wind, shrubs, { shadow: false }));
-  scene.add(inst(M.buildBlobTree(), mats.solid, blobs, { shadow: false }));
-
-  /* --- kiosks on the green fingers --- */
+  /* --- kiosks on the green fingers (2 staggered rows of 8 per finger) --- */
   const kioskT = [];
   for (const F of [L.FINGER_A, L.FINGER_B]) {
     const c = Math.cos(F.ang), s = Math.sin(F.ang);
-    for (let k = 0; k < 7; k++) {
-      const t = (k / 6 - 0.5) * (F.len - 60);
+    const span = F.len - 96, step = span / 7;
+    for (let k = 0; k < 8; k++) {
       for (const side of [-1, 1]) {
-        const off = side * 15;
+        const t = -span / 2 + k * step + (side > 0 ? step / 2 : 0);
+        const off = side * 17;
         const x = F.cx + t * c - off * s, z = F.cz + t * s + off * c;
-        const px = -s * side, pz = c * side; // outward
+        const px = -s * side, pz = c * side; // counters face outward
         kioskT.push({ x, z, ry: Math.atan2(px, pz) });
-        addCol(x, z, 3.4);
+        addCol(x, z, 3.6);
       }
     }
   }
   scene.add(inst(M.buildKiosk(), mats.solid, kioskT, { shadow: !isMobile }));
 
-  /* --- food trucks on the loop islands --- */
+  /* --- food trucks + planting on the loop islands --- */
   const truckT = [];
+  const islandShrubs = [];
   const pastel = [0xffd9b0, 0xc9e6da, 0xf6e7b2, 0xd9c9ee, 0xbcd9ea, 0xf2c4b8, 0xe8e6e0].map((h) => new THREE.Color(h));
   for (const loop of [L.LOOP_N, L.LOOP_S]) {
     const c = Math.cos(loop.ang), s = Math.sin(loop.ang);
-    for (let k = 0; k < 7; k++) {
-      const t = (k / 6 - 0.5) * (loop.islandLen - 26);
+    for (let k = 0; k < loop.trucks; k++) {
+      const t = (k / (loop.trucks - 1) - 0.5) * (loop.islandLen - 26);
       const side = k % 2 ? 1 : -1;
-      const off = side * (loop.islandW / 2 - 4.5);
+      const off = side * (loop.islandW / 2 - 4.8);
       const x = loop.cx + t * c - off * s, z = loop.cz + t * s + off * c;
       const px = -s * side, pz = c * side;
       truckT.push({ x, z, ry: Math.atan2(px, pz) });
       addCol(x, z, 3.6);
     }
+    for (let k = 0; k < 16; k++) { // lush island planting between the trucks
+      const t = (rnd() - 0.5) * (loop.islandLen - 16);
+      const off = (rnd() - 0.5) * (loop.islandW - 22);
+      islandShrubs.push({ x: loop.cx + t * c - off * s, z: loop.cz + t * s + off * c, ry: rnd() * 6.28, s: 0.9 + rnd() * 0.7 });
+    }
   }
   scene.add(inst(M.buildTruck(), mats.solid, truckT, { shadow: !isMobile, colors: pastel }));
+  shrubs.push(...islandShrubs);
+
+  /* vegetation swarms (after island planting is known) */
+  scene.add(inst(M.buildPalm(7), mats.wind, palms, { shadow: !isMobile }));
+  scene.add(inst(M.buildGhaf(17), mats.wind, ghafs, { shadow: !isMobile }));
+  scene.add(inst(M.buildShrub(27), mats.wind, shrubs, { shadow: false }));
+  scene.add(inst(M.buildBlobTree(), mats.solid, blobs, { shadow: false }));
 
   /* --- parked cars --- */
   const carT = [];
@@ -394,8 +394,8 @@ export function buildWorld(scene, isMobile) {
     }
   }
   for (let row = 0; row < 3; row++) {
-    const z = 182 + row * 26;
-    for (let x = 162; x < 292; x += 5.6) {
+    const z = 172 + row * 24;
+    for (let x = 212; x < 289; x += 5.6) {
       if (rnd() < 0.42) continue;
       carT.push({ x, z, ry: Math.PI / 2 + (rnd() - 0.5) * 0.05 });
       addCol(x, z, 1.7);
@@ -418,7 +418,7 @@ export function buildWorld(scene, isMobile) {
     }
   }
   for (let row = 0; row < 3; row++)
-    for (let x = 159; x < 295; x += 5.6) markT.push({ x, z: 182 + row * 26, ry: Math.PI / 2, sx: 0.12, sy: 0.02, sz: 5.2 });
+    for (let x = 209; x < 292; x += 5.6) markT.push({ x, z: 172 + row * 24, ry: Math.PI / 2, sx: 0.12, sy: 0.02, sz: 5.2 });
   for (const [a, b, c2, d] of L.ROADS) {
     const horiz = c2 - a > d - b;
     const len = horiz ? c2 - a : d - b;
@@ -452,45 +452,46 @@ export function buildWorld(scene, isMobile) {
     scene.add(new THREE.Mesh(M.merge(glasses), mats.glass));
   }
 
-  /* --- tensile canopies (sail + frame instanced, scaled per canopy) --- */
+  /* --- tensile canopies (sail + frame instanced, scaled + rotated per canopy) --- */
   {
-    const t = L.CANOPIES.map((c) => ({ x: c.x, z: c.z, y: c.h * 0.28, sx: c.s, sy: c.h * 0.72, sz: c.s, ry: 0 }));
+    const t = L.CANOPIES.map((c) => ({ x: c.x, z: c.z, y: c.h * 0.28, sx: c.s, sy: c.h * 0.72, sz: c.s, ry: c.ry }));
     const sail = inst(M.buildSail(), mats.sail, t, { shadow: true });
     scene.add(sail);
-    const ft = L.CANOPIES.map((c) => ({ x: c.x, z: c.z, sx: c.s, sy: c.h, sz: c.s, ry: 0 }));
+    const ft = L.CANOPIES.map((c) => ({ x: c.x, z: c.z, sx: c.s, sy: c.h, sz: c.s, ry: c.ry }));
     scene.add(inst(M.buildFrame(), mats.solid, ft, { shadow: false }));
     for (const c of L.CANOPIES) {
       addCol(c.x, c.z, 0.5);
+      const cc = Math.cos(c.ry), cs = Math.sin(c.ry);
       for (const [ox, oz] of [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]])
-        addCol(c.x + ox * c.s, c.z + oz * c.s, 0.45);
+        addCol(c.x + (ox * cc - oz * cs) * c.s, c.z + (ox * cs + oz * cc) * c.s, 0.45);
     }
   }
 
-  /* --- play structures --- */
+  /* --- play heart: lattice spheres, slide, viewing tower, sand mounds --- */
   {
-    const drums = L.PLAY_RINGS.map(([x, z, r]) => ({ x, z, ry: rnd() * 6.28, sx: r, sy: 0.95 + rnd() * 0.15, sz: r }));
-    scene.add(inst(M.buildPlayDrum(), mats.solid, drums, { shadow: !isMobile }));
-    for (const [x, z, r] of L.PLAY_RINGS) addCol(x, z, r + 0.25);
-    const tower = new THREE.Mesh(M.buildPlayTower(), mats.solid);
-    tower.position.set(-8, 0.07, 8);
-    tower.rotation.y = 0.6;
+    const spheres = L.PLAY_SPHERES.map(([x, z, r]) => ({ x, z, y: 0.1, ry: rnd() * 6.28, s: r }));
+    scene.add(inst(M.buildLatticeSphere(), mats.solid, spheres, { shadow: !isMobile }));
+    for (const [x, z, r] of L.PLAY_SPHERES) addCol(x, z, r + 0.3);
+    const slide = new THREE.Mesh(M.buildSlide(), mats.solid);
+    slide.position.set(L.PLAY_SPHERES[0][0], 1.1, L.PLAY_SPHERES[0][1]);
+    slide.rotation.y = 2.4;
+    slide.castShadow = !isMobile;
+    scene.add(slide);
+    const tower = new THREE.Mesh(M.buildLatticeTower(L.TOWER.r, L.TOWER.h), mats.solid);
+    tower.position.set(L.TOWER.x, 0.07, L.TOWER.z);
     tower.castShadow = true;
     scene.add(tower);
-    addCol(-8, 8, 3.2); addCol(-4.5, 11, 3);
-  }
-
-  /* --- fountain --- */
-  let water;
-  {
-    const basin = new THREE.Mesh(M.buildFountainBasin(L.FOUNTAIN.r), mats.solid);
-    basin.position.set(L.FOUNTAIN.x, 0.1, L.FOUNTAIN.z);
-    basin.castShadow = true;
-    scene.add(basin);
-    water = new THREE.Mesh(new THREE.CircleGeometry(L.FOUNTAIN.r - 0.35, 28), mats.water);
-    water.rotation.x = -Math.PI / 2;
-    water.position.set(L.FOUNTAIN.x, 0.42, L.FOUNTAIN.z);
-    scene.add(water);
-    addCol(L.FOUNTAIN.x, L.FOUNTAIN.z, L.FOUNTAIN.r + 0.3);
+    addCol(L.TOWER.x, L.TOWER.z, L.TOWER.r + 0.3);
+    const moundGeos = L.MOUNDS.map(([x, z, r]) => {
+      const g = new THREE.SphereGeometry(r, 12, 8).toNonIndexed();
+      g.scale(1, 0.32, 1);
+      g.translate(x, 0.05, z);
+      return g;
+    });
+    const mounds = new THREE.Mesh(M.merge(moundGeos), mats.sand);
+    mounds.receiveShadow = true;
+    scene.add(mounds);
+    for (const [x, z, r] of L.MOUNDS) addCol(x, z, r * 0.75);
   }
 
   /* --- arrival pavilion --- */
@@ -519,7 +520,7 @@ export function buildWorld(scene, isMobile) {
   }
   for (let i = 0; i < 10; i++) {
     const a = (i / 10) * Math.PI * 2;
-    poleT.push({ x: 150 + Math.cos(a) * 88, z: 128 + Math.sin(a) * 88, ry: -a + Math.PI });
+    poleT.push({ x: 118 + Math.cos(a) * 94, z: 140 + Math.sin(a) * 94, ry: -a + Math.PI });
   }
   for (const t of poleT) addCol(t.x, t.z, 0.3);
   scene.add(inst(M.buildPole(), mats.solid, poleT, { shadow: false }));
@@ -546,7 +547,7 @@ export function buildWorld(scene, isMobile) {
 
   /* --- hedge fence with entry gaps --- */
   {
-    const gaps = [[-70, z0], [x0, -125], [x0, 140], [180, z1], [235, z1], [x1, 110]];
+    const gaps = [[-2, z0], [-82, z0], [x0, -72], [x0, 165], [x1, 198], [170, z1]];
     const segs = [];
     const edge = (xa, za, xb, zb) => {
       const len = Math.hypot(xb - xa, zb - za), n = Math.floor(len / 4);
@@ -590,7 +591,7 @@ export function buildWorld(scene, isMobile) {
   }
 
   const movingCars = inst(carGeo, mats.solid, Array.from({ length: 12 }, (_, i) => ({
-    x: -600 + i * 120, z: i % 2 ? -344 : -366, ry: i % 2 ? Math.PI / 2 : -Math.PI / 2,
+    x: -600 + i * 120, z: i % 2 ? -316 : -338, ry: i % 2 ? Math.PI / 2 : -Math.PI / 2,
   })), { shadow: false, colors: carCols });
   scene.add(movingCars);
 
@@ -685,13 +686,13 @@ export function buildWorld(scene, isMobile) {
     sunDir: new V3(0.45, 0.62, -0.55).normalize(), sunCol: new THREE.Color(0xffe3b8), sunInt: 2.35,
     hemiSky: new THREE.Color(0xbfd7e8), hemiGround: new THREE.Color(0xc9b89a), hemiInt: 0.7,
     fog: new THREE.Color(0xe5d9c3), fogNear: 260, fogFar: 1500,
-    lamp: 0, glow: 0, ff: 0, sailGlow: 0,
+    lamp: 0, glow: 0.2, ff: 0, sailGlow: 0,
   };
   const DUSK = {
     sunDir: new V3(-0.82, 0.13, 0.30).normalize(), sunCol: new THREE.Color(0xff9e5e), sunInt: 1.5,
     hemiSky: new THREE.Color(0x47557a), hemiGround: new THREE.Color(0x7a5a40), hemiInt: 0.42,
     fog: new THREE.Color(0xc98a5e), fogNear: 200, fogFar: 1150,
-    lamp: 2.4, glow: 1.1, ff: 0.9, sailGlow: 0.28,
+    lamp: 2.4, glow: 1.5, ff: 0.9, sailGlow: 0.28,
   };
   const tmpC = new THREE.Color();
   function applyTime(d) {
@@ -719,7 +720,6 @@ export function buildWorld(scene, isMobile) {
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), s3 = new V3(1, 1, 1), p3 = new V3();
   function tick(t, dt, playerPos) {
     uTime.value = t;
-    water.rotation.z = t * 0.12;
     sun.target.position.set(playerPos.x, 0, playerPos.z);
     sun.target.updateMatrixWorld();
     const d = skyU.uDay.value;
@@ -732,7 +732,7 @@ export function buildWorld(scene, isMobile) {
       if (x > 850) x -= 1450; if (x < -600) x += 1450;
       e.set(0, dir > 0 ? Math.PI / 2 : -Math.PI / 2, 0);
       q.setFromEuler(e);
-      p3.set(x, 0.02, i % 2 ? -344 : -366);
+      p3.set(x, 0.02, i % 2 ? -316 : -338);
       m4.compose(p3, q, s3);
       movingCars.setMatrixAt(i, m4);
     }
@@ -745,10 +745,15 @@ export function buildWorld(scene, isMobile) {
       const hw = p.w / 2;
       if (L.distToPolylineSq(x, z, p.line) < hw * hw) return "paving";
     }
+    for (const ring of L.RING_PATHS) {
+      const hw = ring.w / 2;
+      if (L.distToPolylineSq(x, z, [...ring.poly, ring.poly[0]]) < hw * hw) return "paving";
+    }
     const dr = Math.hypot(x - L.PLAY_RING.cx, z - L.PLAY_RING.cz);
     if (Math.abs(dr - L.PLAY_RING.r) < L.PLAY_RING.w / 2) return "paving";
     if (L.pointInPolygon(x, z, L.SAND)) return "sand";
     if (L.pointInPolygon(x, z, L.PLAZA)) return "terracotta";
+    if (L.pointInPolygon(x, z, L.CENTRAL)) return "paving";
     if (L.pointInPolygon(x, z, L.FINGER_A_POLY) || L.pointInPolygon(x, z, L.FINGER_B_POLY)) return "grass";
     if (L.pointInPolygon(x, z, L.LOOP_N_POLY) || L.pointInPolygon(x, z, L.LOOP_S_POLY) || L.pointInPolygon(x, z, L.PARKING_SE)) return "asphalt";
     return "grass";
